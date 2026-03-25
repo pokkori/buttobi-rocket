@@ -6,6 +6,7 @@ import { useProgressStore } from '../../src/stores/progressStore';
 import { CoinDisplay } from '../../src/components/ui/CoinDisplay';
 import { Button } from '../../src/components/ui/Button';
 import { COLORS } from '../../src/constants/colors';
+import { IconSvg } from '../../src/components/ui/IconSvg';
 
 const RARITY_COLORS: Record<string, string> = {
   common: COLORS.rarityCommon,
@@ -35,7 +36,10 @@ export default function ShopScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.back}>← 戻る</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>🛒 ショップ</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <IconSvg name="shop" size={20} color={COLORS.text} />
+          <Text style={styles.title}>ショップ</Text>
+        </View>
         <CoinDisplay amount={coins} />
       </View>
 
@@ -71,10 +75,16 @@ export default function ShopScreen() {
                   onPress={() => canBuy && handleBuy(skin.id, skin.price)}
                   disabled={!canBuy}
                 >
-                  <Text style={styles.buyText}>💰 {skin.price}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <IconSvg name="coin" size={14} />
+                    <Text style={styles.buyText}>{skin.price}</Text>
+                  </View>
                 </TouchableOpacity>
               ) : (
-                <Text style={styles.lockText}>🔒 {skin.unlockCondition === 'achievement' ? '実績で解放' : 'デイリーで解放'}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <IconSvg name="lock" size={12} color={COLORS.locked} />
+                  <Text style={styles.lockText}>{skin.unlockCondition === 'achievement' ? '実績で解放' : 'デイリーで解放'}</Text>
+                </View>
               )}
             </View>
           );

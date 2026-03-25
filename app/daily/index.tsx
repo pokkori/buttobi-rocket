@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { IconSvg } from '../../src/components/ui/IconSvg';
 import { useRouter } from 'expo-router';
 import { getDailyChallenge } from '../../src/data/dailyChallenges';
 import { useProgressStore } from '../../src/stores/progressStore';
@@ -48,7 +49,11 @@ export default function DailyScreen() {
 
       <View style={styles.content}>
         {actualStreak > 0 && (
-          <Text style={styles.streak}>🔥 連続 {actualStreak}日目! 🔥</Text>
+          <View style={styles.streakRow}>
+            <IconSvg name="fire" size={22} />
+            <Text style={styles.streak}>連続 {actualStreak}日目!</Text>
+            <IconSvg name="fire" size={22} />
+          </View>
         )}
 
         <View style={styles.challengeCard}>
@@ -59,7 +64,10 @@ export default function DailyScreen() {
             <Text style={styles.rewardText}>⭐3: +{Math.round(daily.bonusCoins * 0.6)}コイン ボーナス</Text>
           </View>
           {isToday && todayCleared && (
-            <Text style={styles.clearedText}>✅ 今日のチャレンジはクリア済み</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <IconSvg name="check" size={16} />
+              <Text style={styles.clearedText}>今日のチャレンジはクリア済み</Text>
+            </View>
           )}
         </View>
 
@@ -78,14 +86,19 @@ export default function DailyScreen() {
               { days: 3, coins: 20 },
               { days: 7, coins: 50 },
               { days: 14, coins: 100 },
-              { days: 30, coins: 0, skin: 'スキン🚀' },
+              { days: 30, coins: 0, skin: 'スキン解放' },
             ].map(b => (
               <View key={b.days} style={[styles.bonusItem, { opacity: actualStreak >= b.days ? 1 : 0.5 }]}>
                 <Text style={styles.bonusDays}>{b.days}日</Text>
-                <Text style={styles.bonusReward}>
-                  {b.coins ? `+${b.coins}💰` : b.skin}
-                </Text>
-                {actualStreak >= b.days && <Text style={styles.bonusCheck}>✅</Text>}
+                {b.coins > 0 ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                    <Text style={styles.bonusReward}>+{b.coins}</Text>
+                    <IconSvg name="coin" size={12} />
+                  </View>
+                ) : (
+                  <Text style={styles.bonusReward}>{b.skin}</Text>
+                )}
+                {actualStreak >= b.days && <IconSvg name="check" size={14} />}
               </View>
             ))}
           </View>
@@ -104,7 +117,8 @@ const styles = StyleSheet.create({
   back: { color: COLORS.primary, fontSize: 16, fontWeight: '600' },
   title: { fontSize: 16, fontWeight: '700', color: COLORS.text },
   content: { flex: 1, paddingHorizontal: 24, paddingTop: 16 },
-  streak: { fontSize: 20, fontWeight: '800', color: COLORS.accent, textAlign: 'center', marginBottom: 20 },
+  streakRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 20 },
+  streak: { fontSize: 20, fontWeight: '800', color: COLORS.accent, textAlign: 'center' },
   challengeCard: {
     backgroundColor: COLORS.cardBg, borderRadius: 16, padding: 20, borderWidth: 1, borderColor: COLORS.cardBorder,
     gap: 8, marginBottom: 20,

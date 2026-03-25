@@ -5,6 +5,7 @@ import { ACHIEVEMENTS } from '../../src/data/achievements';
 import { useProgressStore } from '../../src/stores/progressStore';
 import { CoinDisplay } from '../../src/components/ui/CoinDisplay';
 import { COLORS } from '../../src/constants/colors';
+import { IconSvg, getCategoryIcon } from '../../src/components/ui/IconSvg';
 
 export default function AchievementsScreen() {
   const router = useRouter();
@@ -28,7 +29,10 @@ export default function AchievementsScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.back}>← 戻る</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>🏅 実績</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <IconSvg name="medal" size={20} />
+          <Text style={styles.title}>実績</Text>
+        </View>
         <CoinDisplay amount={coins} size={13} />
       </View>
 
@@ -44,11 +48,11 @@ export default function AchievementsScreen() {
           return (
             <View key={ach.id} style={[styles.card, { opacity: isUnlocked ? 1 : 0.7 }]}>
               <View style={styles.cardHeader}>
-                <Text style={styles.icon}>{ach.icon}</Text>
+                <IconSvg name={getCategoryIcon(ach.category)} size={28} color={isUnlocked ? '#FFD700' : COLORS.textSecondary} />
                 <View style={styles.cardInfo}>
                   <View style={styles.nameRow}>
                     <Text style={styles.name}>{ach.name}</Text>
-                    {isUnlocked && <Text style={styles.checkMark}>✅</Text>}
+                    {isUnlocked && <IconSvg name="check" size={16} />}
                   </View>
                   <Text style={styles.desc}>{ach.description}</Text>
                 </View>
@@ -88,11 +92,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  icon: { fontSize: 28 },
   cardInfo: { flex: 1 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   name: { color: COLORS.text, fontSize: 15, fontWeight: '700' },
-  checkMark: { fontSize: 14 },
   desc: { color: COLORS.textSecondary, fontSize: 12, marginTop: 2 },
   progressBar: {
     height: 16, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 8, overflow: 'hidden',
