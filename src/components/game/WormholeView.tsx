@@ -20,7 +20,7 @@ export function WormholeView({ data, screenWidth, screenHeight }: WormholeViewPr
 
   useEffect(() => {
     Animated.loop(
-      Animated.timing(rotAnim, { toValue: 1, duration: 2000, easing: Easing.linear, useNativeDriver: false })
+      Animated.timing(rotAnim, { toValue: 1, duration: 2000, easing: Easing.inOut(Easing.sin), useNativeDriver: false })
     ).start();
   }, []);
 
