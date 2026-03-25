@@ -1,5 +1,11 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Animated, Easing } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withDelay,
+} from 'react-native-reanimated';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Button } from '../../src/components/ui/Button';
 import { CoinDisplay } from '../../src/components/ui/CoinDisplay';
@@ -8,6 +14,45 @@ import { getStageById } from '../../src/data/stages';
 import { getWorldForStage } from '../../src/data/worlds';
 import { COLORS } from '../../src/constants/colors';
 import { formatPercent } from '../../src/utils/math';
+
+const STAR_DELAY_MS = 200;
+
+interface StarItemProps {
+  index: number;
+  earned: boolean;
+  delayMs: number;
+}
+
+function StarItem({ index, earned, delayMs }: StarItemProps) {
+  const scale = useSharedValue(0);
+
+  useEffect(() => {
+    if (earned) {
+      // 出現: scale 0 -> 1.3 -> 1.0
+      scale.value = withDelay(
+        delayMs,
+        withSpring(1, { damping: 6, stiffness: 300 })
+      );
+    }
+  }, [earned, delayMs]);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: scale.value > 0 ? 1 : earned ? 0 : 1,
+  }));
+
+  return (
+    <Animated.Text
+      style={[
+        styles.starText,
+        { color: earned ? COLORS.star : COLORS.starEmpty },
+        earned ? animStyle : undefined,
+      ]}
+    >
+      {earned ? '\u2605' : '\u2606'}
+    </Animated.Text>
+  );
+}
 
 export default function ResultScreen() {
   const router = useRouter();
@@ -20,30 +65,10 @@ export default function ResultScreen() {
   const clearStage = useProgressStore(s => s.clearStage);
   const coins = useProgressStore(s => s.coins);
 
-  // Star animations
-  const starAnims = [
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-    useRef(new Animated.Value(0)).current,
-  ];
-
   useEffect(() => {
     if (stage) {
       clearStage(sId, stars, fuel, null);
     }
-
-    // Animate stars appearing
-    starAnims.forEach((anim, i) => {
-      if (i < stars) {
-        Animated.timing(anim, {
-          toValue: 1,
-          delay: i * 300,
-          duration: 400,
-          easing: Easing.out(Easing.back(2)),
-          useNativeDriver: true,
-        }).start();
-      }
-    });
   }, []);
 
   if (!stage || !world) return null;
@@ -60,29 +85,19 @@ export default function ResultScreen() {
       </View>
 
       <View style={styles.center}>
-        <Text style={styles.clearText}>✨ CLEAR! ✨</Text>
+        <Text style={styles.clearText}>CLEAR!</Text>
         <Text style={styles.stageName}>
-          Stage {world.id}-{stageInWorld} 「{stage.name}」
+          Stage {world.id}-{stageInWorld} {stage.name}
         </Text>
 
         <View style={styles.starsRow}>
           {[0, 1, 2].map(i => (
-            <Animated.Text
+            <StarItem
               key={i}
-              style={[
-                styles.starText,
-                {
-                  opacity: starAnims[i],
-                  transform: [
-                    { scale: starAnims[i].interpolate({ inputRange: [0, 1], outputRange: [0, 1] }) },
-                    { rotate: starAnims[i].interpolate({ inputRange: [0, 1], outputRange: ['180deg', '0deg'] }) },
-                  ],
-                  color: i < stars ? COLORS.star : COLORS.starEmpty,
-                },
-              ]}
-            >
-              {i < stars ? '\u2605' : '\u2606'}
-            </Animated.Text>
+              index={i}
+              earned={i < stars}
+              delayMs={i * STAR_DELAY_MS}
+            />
           ))}
         </View>
 
@@ -98,7 +113,7 @@ export default function ResultScreen() {
             title="次のステージ"
             onPress={() => router.replace(`/game/${nextStageId}`)}
             size="large"
-            icon="▶"
+            icon=">"
             style={styles.nextBtn}
           />
         )}
@@ -107,13 +122,13 @@ export default function ResultScreen() {
             title="リトライ"
             onPress={() => router.replace(`/game/${sId}`)}
             variant="secondary"
-            icon="🔄"
+            icon="R"
           />
           <Button
             title="ステージ選択"
             onPress={() => router.replace(`/stages/${world.id}`)}
             variant="secondary"
-            icon="🏠"
+            icon="H"
           />
         </View>
       </View>
