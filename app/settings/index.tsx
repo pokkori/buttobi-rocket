@@ -11,10 +11,15 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="戻る"
+          style={{ minHeight: 44, justifyContent: 'center' }}
+        >
           <Text style={styles.back}>← 戻る</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>⚙ 設定</Text>
+        <Text style={styles.title}>設定</Text>
         <View style={{ width: 48 }} />
       </View>
 
@@ -66,6 +71,15 @@ export default function SettingsScreen() {
         </View>
 
         <Text style={styles.section}>その他</Text>
+        <TouchableOpacity
+          style={styles.legalButton}
+          onPress={() => router.push('/legal')}
+          accessibilityRole="button"
+          accessibilityLabel="特定商取引法に基づく表記・利用規約を開く"
+        >
+          <Text style={styles.legalText}>特定商取引法・利用規約</Text>
+          <Text style={styles.legalArrow}>›</Text>
+        </TouchableOpacity>
         <Text style={styles.version}>Version 1.0.0</Text>
       </View>
     </SafeAreaView>
@@ -91,4 +105,11 @@ const styles = StyleSheet.create({
   volDot: { width: 16, height: 16, borderRadius: 8 },
   volText: { color: COLORS.textSecondary, fontSize: 13, width: 40, textAlign: 'right' },
   version: { color: COLORS.locked, fontSize: 13, textAlign: 'center', marginTop: 40 },
+  legalButton: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: COLORS.cardBorder,
+    minHeight: 44,
+  },
+  legalText: { color: COLORS.text, fontSize: 16 },
+  legalArrow: { color: COLORS.textSecondary, fontSize: 20 },
 });

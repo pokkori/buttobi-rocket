@@ -11,12 +11,14 @@ interface ButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   icon?: string;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
-export function Button({ title, onPress, variant = 'primary', size = 'medium', disabled, style, textStyle, icon }: ButtonProps) {
+export function Button({ title, onPress, variant = 'primary', size = 'medium', disabled, style, textStyle, icon, accessibilityLabel, accessibilityHint }: ButtonProps) {
   const bgColor = variant === 'primary' ? COLORS.primary : variant === 'danger' ? COLORS.danger : 'transparent';
   const borderColor = variant === 'secondary' ? COLORS.primary : 'transparent';
-  const height = size === 'small' ? 36 : size === 'large' ? 56 : 46;
+  const height = size === 'small' ? 44 : size === 'large' ? 56 : 46;
   const fontSize = size === 'small' ? 14 : size === 'large' ? 20 : 16;
 
   return (
@@ -34,6 +36,10 @@ export function Button({ title, onPress, variant = 'primary', size = 'medium', d
         style,
       ]}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: !!disabled }}
     >
       <Text style={[styles.text, { fontSize }, textStyle]}>
         {icon ? `${icon} ` : ''}{title}
