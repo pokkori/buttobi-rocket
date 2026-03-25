@@ -5,6 +5,7 @@ import { Button } from '../src/components/ui/Button';
 import { CoinDisplay } from '../src/components/ui/CoinDisplay';
 import { useProgressStore } from '../src/stores/progressStore';
 import { COLORS } from '../src/constants/colors';
+import { IconSvg } from '../src/components/ui/IconSvg';
 
 export default function TitleScreen() {
   const router = useRouter();
@@ -56,9 +57,9 @@ export default function TitleScreen() {
       </View>
 
       <View style={styles.center}>
-        <Animated.Text style={[styles.rocketIcon, { transform: [{ rotate }] }]}>
-          🚀
-        </Animated.Text>
+        <Animated.View style={[styles.rocketIcon, { transform: [{ rotate }] }]}>
+          <IconSvg name="rocket" size={64} color={COLORS.primary} />
+        </Animated.View>
         <Text style={styles.title}>ぶっ飛びロケット</Text>
         <Text style={styles.subtitle}>Rocket Fling</Text>
       </View>
@@ -76,7 +77,6 @@ export default function TitleScreen() {
           title="デイリーチャレンジ"
           onPress={() => router.push('/daily')}
           variant="secondary"
-          icon="🏆"
           style={styles.dailyButton}
         />
 
@@ -86,21 +86,18 @@ export default function TitleScreen() {
             onPress={() => router.push('/settings')}
             variant="secondary"
             size="small"
-            icon="⚙"
           />
           <Button
             title="実績"
             onPress={() => router.push('/achievements')}
             variant="secondary"
             size="small"
-            icon="🏅"
           />
           <Button
             title="ショップ"
             onPress={() => router.push('/shop')}
             variant="secondary"
             size="small"
-            icon="🛒"
           />
         </View>
       </View>
@@ -131,8 +128,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rocketIcon: {
-    fontSize: 64,
     marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 32,
