@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, SafeAreaView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,6 +12,8 @@ import { useRouter } from 'expo-router';
 import { WORLDS } from '../../src/data/worlds';
 import { useProgressStore } from '../../src/stores/progressStore';
 import { CoinDisplay } from '../../src/components/ui/CoinDisplay';
+import { IconSvg, getWorldIcon } from '../../src/components/ui/IconSvg';
+import { GameBackground } from '../../src/components/GameBackground';
 import { COLORS } from '../../src/constants/colors';
 
 interface WorldCardProps {
@@ -58,7 +61,7 @@ function WorldCard({ world, isUnlocked, clearedCount, index, onPress }: WorldCar
 
   return (
     <Animated.View style={cardStyle}>
-      <TouchableOpacity
+      <Pressable
         style={[
           styles.worldCard,
           {
@@ -75,7 +78,9 @@ function WorldCard({ world, isUnlocked, clearedCount, index, onPress }: WorldCar
         accessibilityState={{ disabled: !isUnlocked }}
       >
         <View style={[styles.cardGradient, { backgroundColor: world.bgGradient[0] + '88' }]}>
-          <Text style={styles.worldIcon}>{world.icon}</Text>
+          <View style={styles.worldIconWrapper}>
+            <IconSvg name={getWorldIcon(world.id)} size={40} color={world.themeColor} />
+          </View>
           <View style={styles.worldInfo}>
             <Text style={styles.worldName}>W{world.id}: {world.name}</Text>
             {isUnlocked ? (
@@ -86,7 +91,7 @@ function WorldCard({ world, isUnlocked, clearedCount, index, onPress }: WorldCar
             <Text style={styles.worldDesc}>{world.description}</Text>
           </View>
         </View>
-      </TouchableOpacity>
+      </Pressable>
     </Animated.View>
   );
 }
@@ -100,15 +105,16 @@ export default function WorldSelectScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <GameBackground altitude={0.7} />
       <View style={styles.header}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="前の画面に戻る"
           style={styles.backButton}
         >
           <Text style={styles.back}>← 戻る</Text>
-        </TouchableOpacity>
+        </Pressable>
         <CoinDisplay amount={coins} />
       </View>
 
@@ -157,7 +163,7 @@ const styles = StyleSheet.create({
   cardGradient: {
     flexDirection: 'row', padding: 16, alignItems: 'center', gap: 16,
   },
-  worldIcon: { fontSize: 40 },
+  worldIconWrapper: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   worldInfo: { flex: 1 },
   worldName: { color: COLORS.text, fontSize: 18, fontWeight: '700' },
   worldProgress: { color: COLORS.textSecondary, fontSize: 13, marginTop: 2 },

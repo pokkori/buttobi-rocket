@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, Pressable, Share, Linking } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,6 +15,8 @@ import { getStageById } from '../../src/data/stages';
 import { getWorldForStage } from '../../src/data/worlds';
 import { COLORS } from '../../src/constants/colors';
 import { formatPercent } from '../../src/utils/math';
+import { useRewardedAd } from '../../src/hooks/useRewardedAd';
+import { GameBackground } from '../../src/components/GameBackground';
 
 const STAR_DELAY_MS = 200;
 
@@ -56,10 +59,18 @@ function StarItem({ index, earned, delayMs }: StarItemProps) {
 
 export default function ResultScreen() {
   const router = useRouter();
-  const { stageId, stars: starsParam, fuel: fuelParam } = useLocalSearchParams<{ stageId: string; stars: string; fuel: string }>();
+  const { stageId, stars: starsParam, fuel: fuelParam, nm: nmParam } = useLocalSearchParams<{ stageId: string; stars: string; fuel: string; nm: string }>();
   const sId = parseInt(stageId ?? '1', 10);
   const stars = parseInt(starsParam ?? '1', 10) as 1 | 2 | 3;
   const fuel = parseFloat(fuelParam ?? '0');
+
+  // ニアミス統計をパース
+  const nmParts = (nmParam ?? '0,0,0,0').split(',').map(Number);
+  const nmClose = nmParts[0] ?? 0;
+  const nmDanger = nmParts[1] ?? 0;
+  const nmMiracle = nmParts[2] ?? 0;
+  const nmTotalBonus = nmParts[3] ?? 0;
+  const hasNearMiss = nmClose + nmDanger + nmMiracle > 0;
   const stage = getStageById(sId);
   const world = getWorldForStage(sId);
   const clearStage = useProgressStore(s => s.clearStage);
@@ -71,6 +82,25 @@ export default function ResultScreen() {
     }
   }, []);
 
+  const { isLoaded: adLoaded, showAd } = useRewardedAd();
+
+  const handleShare = useCallback(async () => {
+    const msg = `ぶっ飛びロケット Stage ${sId}を${stars}つ星でクリア！残り燃料${formatPercent(fuel)} #ぶっ飛びロケット`;
+    try { await Share.share({ message: msg }); } catch (_) {}
+  }, [sId, stars, fuel]);
+
+  const handleShareX = useCallback(async () => {
+    const msg = encodeURIComponent(`ぶっ飛びロケット Stage ${sId}を${stars}つ星でクリア！残り燃料${formatPercent(fuel)} #ぶっ飛びロケット`);
+    await Linking.openURL(`https://twitter.com/intent/tweet?text=${msg}`);
+  }, [sId, stars, fuel]);
+
+  const handleWatchAd = useCallback(() => {
+    showAd(() => {
+      const store = useProgressStore.getState();
+      store.addCoins?.(50);
+    });
+  }, [showAd]);
+
   if (!stage || !world) return null;
 
   const stageInWorld = stage.id - world.stageIds[0] + 1;
@@ -80,6 +110,7 @@ export default function ResultScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <GameBackground altitude={0.8} fever={stars === 3} />
       <View style={styles.header}>
         <CoinDisplay amount={coins} />
       </View>
@@ -105,6 +136,46 @@ export default function ResultScreen() {
           <Text style={styles.statText}>残り燃料: {formatPercent(fuel)}</Text>
           <Text style={styles.statText}>獲得コイン: +{coinReward}</Text>
         </View>
+
+        {/* ニアミス統計 */}
+        {hasNearMiss && (
+          <View style={styles.nearMissSection}>
+            <Text style={styles.nearMissTitle}>NEAR MISS BONUS</Text>
+            <View style={styles.nearMissRow}>
+              {nmMiracle > 0 && (
+                <Text style={[styles.nearMissItem, { color: '#FF2E63' }]}>
+                  MIRACLE x{nmMiracle}
+                </Text>
+              )}
+              {nmDanger > 0 && (
+                <Text style={[styles.nearMissItem, { color: '#FF6B35' }]}>
+                  DANGER x{nmDanger}
+                </Text>
+              )}
+              {nmClose > 0 && (
+                <Text style={[styles.nearMissItem, { color: '#FFFFFF' }]}>
+                  CLOSE x{nmClose}
+                </Text>
+              )}
+            </View>
+            <Text style={styles.nearMissBonus}>+{nmTotalBonus} pts</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Share & Ad */}
+      <View style={styles.shareRow}>
+        <Pressable style={styles.shareBtn} onPress={handleShare} accessibilityRole="button" accessibilityLabel="スコアをシェアする">
+          <Text style={styles.shareBtnText}>シェア</Text>
+        </Pressable>
+        <Pressable style={styles.xBtn} onPress={handleShareX} accessibilityRole="button" accessibilityLabel="Xに投稿する">
+          <Text style={styles.xBtnText}>Xに投稿</Text>
+        </Pressable>
+        {adLoaded && (
+          <Pressable style={styles.adBtn} onPress={handleWatchAd} accessibilityRole="button" accessibilityLabel="広告を見てコインを獲得する">
+            <Text style={styles.adBtnText}>広告でコインGET</Text>
+          </Pressable>
+        )}
       </View>
 
       <View style={styles.buttons}>
@@ -151,4 +222,50 @@ const styles = StyleSheet.create({
   buttons: { paddingHorizontal: 32, paddingBottom: 40, gap: 12 },
   nextBtn: { width: '100%' },
   bottomBtns: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  nearMissSection: {
+    marginTop: 20,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,217,61,0.08)',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,217,61,0.2)',
+  },
+  nearMissTitle: {
+    color: '#FFD93D',
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 2,
+    marginBottom: 8,
+  },
+  nearMissRow: {
+    flexDirection: 'row',
+    gap: 12,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  nearMissItem: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  nearMissBonus: {
+    color: '#FFD93D',
+    fontSize: 18,
+    fontWeight: '900',
+    marginTop: 6,
+  },
+  shareRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 32,
+    marginBottom: 8,
+  },
+  shareBtn: { backgroundColor: COLORS.accent, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, minHeight: 44, justifyContent: 'center' },
+  shareBtnText: { color: '#FFF', fontSize: 13, fontWeight: '700' },
+  xBtn: { backgroundColor: '#000', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: '#333' },
+  xBtnText: { color: '#FFF', fontSize: 13, fontWeight: '700' },
+  adBtn: { backgroundColor: '#FFB300', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, minHeight: 44, justifyContent: 'center' },
+  adBtnText: { color: '#1A1A2E', fontSize: 13, fontWeight: '700' },
 });

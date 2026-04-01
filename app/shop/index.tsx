@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, SafeAreaView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { ROCKET_SKINS } from '../../src/data/skins';
 import { useProgressStore } from '../../src/stores/progressStore';
@@ -7,6 +8,7 @@ import { CoinDisplay } from '../../src/components/ui/CoinDisplay';
 import { Button } from '../../src/components/ui/Button';
 import { COLORS } from '../../src/constants/colors';
 import { IconSvg } from '../../src/components/ui/IconSvg';
+import { GameBackground } from '../../src/components/GameBackground';
 
 const RARITY_COLORS: Record<string, string> = {
   common: COLORS.rarityCommon,
@@ -32,10 +34,14 @@ export default function ShopScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <GameBackground altitude={0.5} />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <Pressable onPress={() => router.back()}
+          accessibilityLabel="戻る"
+          accessibilityRole="button"
+        >
           <Text style={styles.back}>← 戻る</Text>
-        </TouchableOpacity>
+        </Pressable>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <IconSvg name="shop" size={20} color={COLORS.text} />
           <Text style={styles.title}>ショップ</Text>
@@ -63,14 +69,16 @@ export default function ShopScreen() {
               {equipped ? (
                 <Text style={styles.equippedBadge}>装備中</Text>
               ) : owned ? (
-                <TouchableOpacity
+                <Pressable
                   style={styles.equipBtn}
                   onPress={() => equipSkin(skin.id)}
+                  accessibilityLabel="装備する"
+                  accessibilityRole="button"
                 >
                   <Text style={styles.equipText}>装備する</Text>
-                </TouchableOpacity>
+                </Pressable>
               ) : skin.unlockCondition === 'purchase' ? (
-                <TouchableOpacity
+                <Pressable
                   style={[styles.buyBtn, { opacity: canBuy ? 1 : 0.5 }]}
                   onPress={() => canBuy && handleBuy(skin.id, skin.price)}
                   disabled={!canBuy}
@@ -79,7 +87,7 @@ export default function ShopScreen() {
                     <IconSvg name="coin" size={14} />
                     <Text style={styles.buyText}>{skin.price}</Text>
                   </View>
-                </TouchableOpacity>
+                </Pressable>
               ) : (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                   <IconSvg name="lock" size={12} color={COLORS.locked} />

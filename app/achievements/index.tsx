@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, SafeAreaView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { ACHIEVEMENTS } from '../../src/data/achievements';
 import { useProgressStore } from '../../src/stores/progressStore';
 import { CoinDisplay } from '../../src/components/ui/CoinDisplay';
 import { COLORS } from '../../src/constants/colors';
 import { IconSvg, getCategoryIcon } from '../../src/components/ui/IconSvg';
+import { GameBackground } from '../../src/components/GameBackground';
 
 export default function AchievementsScreen() {
   const router = useRouter();
@@ -25,10 +27,14 @@ export default function AchievementsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <GameBackground altitude={0.6} />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <Pressable onPress={() => router.back()}
+          accessibilityLabel="戻る"
+          accessibilityRole="button"
+        >
           <Text style={styles.back}>← 戻る</Text>
-        </TouchableOpacity>
+        </Pressable>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <IconSvg name="medal" size={20} />
           <Text style={styles.title}>実績</Text>

@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Pressable, Switch } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useSettingsStore } from '../../src/stores/settingsStore';
 import { COLORS } from '../../src/constants/colors';
+import { GameBackground } from '../../src/components/GameBackground';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -10,15 +12,16 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <GameBackground altitude={0.4} />
       <View style={styles.header}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="戻る"
           style={{ minHeight: 44, justifyContent: 'center' }}
         >
           <Text style={styles.back}>← 戻る</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={styles.title}>設定</Text>
         <View style={{ width: 48 }} />
       </View>
@@ -29,10 +32,12 @@ export default function SettingsScreen() {
           <Text style={styles.label}>BGM</Text>
           <View style={styles.sliderRow}>
             {[0, 0.25, 0.5, 0.75, 1.0].map(v => (
-              <TouchableOpacity
+              <Pressable
                 key={v}
                 style={[styles.volDot, { backgroundColor: settings.bgmVolume >= v ? COLORS.primary : COLORS.locked }]}
                 onPress={() => settings.update({ bgmVolume: v })}
+                accessibilityLabel="効果音"
+                accessibilityRole="button"
               />
             ))}
             <Text style={styles.volText}>{Math.round(settings.bgmVolume * 100)}%</Text>
@@ -42,10 +47,12 @@ export default function SettingsScreen() {
           <Text style={styles.label}>効果音</Text>
           <View style={styles.sliderRow}>
             {[0, 0.25, 0.5, 0.75, 1.0].map(v => (
-              <TouchableOpacity
+              <Pressable
                 key={v}
                 style={[styles.volDot, { backgroundColor: settings.sfxVolume >= v ? COLORS.primary : COLORS.locked }]}
                 onPress={() => settings.update({ sfxVolume: v })}
+                accessibilityLabel="ゲーム"
+                accessibilityRole="button"
               />
             ))}
             <Text style={styles.volText}>{Math.round(settings.sfxVolume * 100)}%</Text>
@@ -71,7 +78,7 @@ export default function SettingsScreen() {
         </View>
 
         <Text style={styles.section}>その他</Text>
-        <TouchableOpacity
+        <Pressable
           style={styles.legalButton}
           onPress={() => router.push('/legal')}
           accessibilityRole="button"
@@ -79,7 +86,7 @@ export default function SettingsScreen() {
         >
           <Text style={styles.legalText}>特定商取引法・利用規約</Text>
           <Text style={styles.legalArrow}>›</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={styles.version}>Version 1.0.0</Text>
       </View>
     </SafeAreaView>

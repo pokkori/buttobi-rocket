@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Pressable, SafeAreaView, Dimensions } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { GameCanvas } from '../../src/components/game/GameCanvas';
 import { FuelGauge } from '../../src/components/game/FuelGauge';
@@ -8,6 +8,7 @@ import { useProgressStore } from '../../src/stores/progressStore';
 import { getStageById } from '../../src/data/stages';
 import { getWorldForStage } from '../../src/data/worlds';
 import { COLORS } from '../../src/constants/colors';
+import { IconSvg } from '../../src/components/ui/IconSvg';
 
 const { width: SW } = Dimensions.get('window');
 
@@ -25,6 +26,7 @@ export default function GameScreen() {
   const reset = useGameStore(s => s.reset);
   const setPaused = useGameStore(s => s.setPaused);
   const isPaused = useGameStore(s => s.isPaused);
+  const nearMissStats = useGameStore(s => s.nearMissStats);
   const incrementLaunches = useProgressStore(s => s.incrementLaunches);
   const [launched, setLaunched] = useState(false);
 
@@ -45,8 +47,9 @@ export default function GameScreen() {
   useEffect(() => {
     if (phase === 'goal' && stage) {
       const stars = calculateStars(fuel, stage.starThresholds);
+      const nmStats = `${nearMissStats.close},${nearMissStats.danger},${nearMissStats.miracle},${nearMissStats.totalBonus}`;
       const timeout = setTimeout(() => {
-        router.replace(`/result/${sId}?stars=${stars}&fuel=${fuel}`);
+        router.replace(`/result/${sId}?stars=${stars}&fuel=${fuel}&nm=${nmStats}`);
       }, 800);
       return () => clearTimeout(timeout);
     }
@@ -75,9 +78,9 @@ export default function GameScreen() {
       {/* HUD overlay */}
       <SafeAreaView style={styles.hud} pointerEvents="box-none">
         <View style={styles.hudTop}>
-          <TouchableOpacity onPress={handlePause} style={styles.pauseBtn}>
+          <Pressable onPress={handlePause} style={styles.pauseBtn}>
             <Text style={styles.pauseText}>{isPaused ? '▶' : '⏸'}</Text>
-          </TouchableOpacity>
+          </Pressable>
           <Text style={styles.stageLabel}>
             {world.id}-{stageInWorld} {stage.name}
           </Text>
@@ -86,21 +89,32 @@ export default function GameScreen() {
 
         {/* Retry button */}
         {phase !== 'aiming' && (
-          <TouchableOpacity onPress={handleRetry} style={styles.retryBtn}>
-            <Text style={styles.retryText}>🔄 リトライ</Text>
-          </TouchableOpacity>
+          <Pressable onPress={handleRetry} style={styles.retryBtn}
+            accessibilityLabel="リトライ"
+            accessibilityRole="button"
+          >
+            <IconSvg name="retry" size={16} color={COLORS.text} />
+            <Text style={styles.retryText}>リトライ</Text>
+          </Pressable>
         )}
 
         {/* Back button (shown when paused) */}
         {isPaused && (
           <View style={styles.pauseOverlay}>
             <Text style={styles.pauseTitle}>PAUSED</Text>
-            <TouchableOpacity onPress={handlePause} style={styles.resumeBtn}>
+            <Pressable onPress={handlePause} style={styles.resumeBtn}
+              accessibilityLabel="再開"
+              accessibilityRole="button"
+            >
               <Text style={styles.resumeText}>▶ 再開</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.back()} style={styles.quitBtn}>
-              <Text style={styles.quitText}>🏠 ステージ選択</Text>
-            </TouchableOpacity>
+            </Pressable>
+            <Pressable onPress={() => router.back()} style={styles.quitBtn}
+              accessibilityLabel="ステージ選択に戻る"
+              accessibilityRole="button"
+            >
+              <IconSvg name="home" size={16} color={COLORS.textSecondary} />
+              <Text style={styles.quitText}>ステージ選択</Text>
+            </Pressable>
           </View>
         )}
       </SafeAreaView>
@@ -132,6 +146,8 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 40, right: 20,
     backgroundColor: 'rgba(0,0,0,0.6)',
     paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    minHeight: 44,
   },
   retryText: { color: COLORS.text, fontSize: 14, fontWeight: '600' },
   pauseOverlay: {
@@ -146,6 +162,8 @@ const styles = StyleSheet.create({
   resumeText: { color: COLORS.text, fontSize: 18, fontWeight: '700' },
   quitBtn: {
     backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    minHeight: 44,
   },
   quitText: { color: COLORS.textSecondary, fontSize: 14, fontWeight: '600' },
 });

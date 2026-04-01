@@ -4,7 +4,8 @@ import Svg, { Circle, Path, Rect, G } from 'react-native-svg';
 type IconName =
   | 'shop' | 'coin' | 'lock' | 'fire' | 'check' | 'medal'
   | 'rocket' | 'star' | 'trophy' | 'calendar' | 'lightning'
-  | 'galaxy' | 'wormhole' | 'target' | 'crown' | 'diamond';
+  | 'galaxy' | 'wormhole' | 'target' | 'crown' | 'diamond'
+  | 'home' | 'retry' | 'earth' | 'nebula' | 'blackhole' | 'sparkle';
 
 interface IconSvgProps {
   name: IconName;
@@ -145,6 +146,61 @@ export const IconSvg: React.FC<IconSvgProps> = ({ name, size = 24, color = '#FFF
         </Svg>
       );
 
+    case 'home':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityLabel="ホーム">
+          <Path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill={color} />
+        </Svg>
+      );
+
+    case 'retry':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityLabel="リトライ">
+          <Path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" fill={color} />
+        </Svg>
+      );
+
+    case 'earth':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityLabel="地球">
+          <Circle cx="12" cy="12" r="10" fill="#4A90D9" />
+          <Path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="#2196F3" opacity="0.6" />
+        </Svg>
+      );
+
+    case 'nebula':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityLabel="星雲">
+          <Circle cx="12" cy="12" r="3" fill="#9B59B6" />
+          <Path d="M12 2C8 2 4 6 4 10c0 2 4 5 8 5s8-3 8-5C20 6 16 2 12 2z" fill="none" stroke="#9B59B6" strokeWidth="1.5" opacity="0.8" />
+          <Path d="M12 22c4 0 8-4 8-8 0-2-4-5-8-5s-8 3-8 5c0 4 4 8 8 8z" fill="none" stroke="#7C4DFF" strokeWidth="1.5" opacity="0.5" />
+          <Circle cx="6" cy="7" r="1" fill="#FFFFFF" opacity="0.6" />
+          <Circle cx="18" cy="9" r="1" fill="#FFFFFF" opacity="0.6" />
+          <Circle cx="9" cy="18" r="1" fill="#FFFFFF" opacity="0.6" />
+        </Svg>
+      );
+
+    case 'blackhole':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityLabel="ブラックホール">
+          <Circle cx="12" cy="12" r="10" fill="none" stroke="#2C3E50" strokeWidth="2" />
+          <Circle cx="12" cy="12" r="7" fill="none" stroke="#34495E" strokeWidth="1.5" opacity="0.7" />
+          <Circle cx="12" cy="12" r="4" fill="none" stroke="#4A4A6A" strokeWidth="1" opacity="0.5" />
+          <Circle cx="12" cy="12" r="2" fill="#1A1A2E" />
+        </Svg>
+      );
+
+    case 'sparkle':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityLabel="輝き">
+          <Path d="M12 2l2 7h7l-5.7 4.1 2.2 7L12 16l-5.5 4.1 2.2-7L3 9h7z" fill="#F39C12" />
+          <Circle cx="5" cy="5" r="1.5" fill="#FFD700" opacity="0.8" />
+          <Circle cx="19" cy="5" r="1.5" fill="#FFD700" opacity="0.8" />
+          <Circle cx="5" cy="19" r="1" fill="#FFD700" opacity="0.6" />
+          <Circle cx="19" cy="19" r="1" fill="#FFD700" opacity="0.6" />
+        </Svg>
+      );
+
     default:
       return null;
   }
@@ -159,5 +215,17 @@ export function getCategoryIcon(category: string): IconName {
     case 'daily': return 'calendar';
     case 'special': return 'wormhole';
     default: return 'medal';
+  }
+}
+
+/** ワールドIDに対応するアイコン名を返す */
+export function getWorldIcon(worldId: number): IconName {
+  switch (worldId) {
+    case 1: return 'earth';
+    case 2: return 'nebula';
+    case 3: return 'blackhole';
+    case 4: return 'wormhole';
+    case 5: return 'sparkle';
+    default: return 'galaxy';
   }
 }

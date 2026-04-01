@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Pressable } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { IconSvg } from '../../src/components/ui/IconSvg';
+import { GameBackground } from '../../src/components/GameBackground';
 import { useRouter } from 'expo-router';
 import { getDailyChallenge } from '../../src/data/dailyChallenges';
 import { useProgressStore } from '../../src/stores/progressStore';
@@ -39,10 +41,14 @@ export default function DailyScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <GameBackground altitude={0.6} />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <Pressable onPress={() => router.back()}
+          accessibilityLabel="戻る"
+          accessibilityRole="button"
+        >
           <Text style={styles.back}>← 戻る</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={styles.title}>デイリーチャレンジ</Text>
         <CoinDisplay amount={coins} size={13} />
       </View>
@@ -61,7 +67,12 @@ export default function DailyScreen() {
           <Text style={styles.challengeDesc}>{daily.description}</Text>
           <View style={styles.rewardRow}>
             <Text style={styles.rewardText}>報酬: {daily.bonusCoins}コイン</Text>
-            <Text style={styles.rewardText}>⭐3: +{Math.round(daily.bonusCoins * 0.6)}コイン ボーナス</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+              <IconSvg name="star" size={13} />
+              <IconSvg name="star" size={13} />
+              <IconSvg name="star" size={13} />
+              <Text style={styles.rewardText}>: +{Math.round(daily.bonusCoins * 0.6)}コイン ボーナス</Text>
+            </View>
           </View>
           {isToday && todayCleared && (
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>

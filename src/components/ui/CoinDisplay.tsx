@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../constants/colors';
+import { IconSvg } from './IconSvg';
 
 interface CoinDisplayProps {
   amount: number;
@@ -10,7 +11,7 @@ interface CoinDisplayProps {
 export function CoinDisplay({ amount, size = 16 }: CoinDisplayProps) {
   return (
     <View style={styles.container}>
-      <Text style={[styles.icon, { fontSize: size }]}>&#x1F4B0;</Text>
+      <IconSvg name="coin" size={size} />
       <Text style={[styles.text, { fontSize: size }]}>{amount.toLocaleString()}</Text>
     </View>
   );
@@ -25,9 +26,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 16,
-  },
-  icon: {
-    color: COLORS.accent,
   },
   text: {
     color: COLORS.accent,

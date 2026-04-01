@@ -1,11 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Pressable, SafeAreaView, FlatList } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getStagesByWorldId } from '../../src/data/stages';
 import { getWorldById } from '../../src/data/worlds';
 import { useProgressStore } from '../../src/stores/progressStore';
 import { StarRating } from '../../src/components/ui/StarRating';
 import { CoinDisplay } from '../../src/components/ui/CoinDisplay';
+import { IconSvg } from '../../src/components/ui/IconSvg';
+import { GameBackground } from '../../src/components/GameBackground';
 import { COLORS } from '../../src/constants/colors';
 
 export default function StageSelectScreen() {
@@ -27,10 +30,14 @@ export default function StageSelectScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <GameBackground altitude={0.7} />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <Pressable onPress={() => router.back()}
+          accessibilityLabel="戻る"
+          accessibilityRole="button"
+        >
           <Text style={styles.back}>← 戻る</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.title, { color: world.themeColor }]}>W{world.id}: {world.name}</Text>
         <CoinDisplay amount={coins} size={13} />
       </View>
@@ -47,7 +54,7 @@ export default function StageSelectScreen() {
           const cleared = (result?.stars ?? 0) > 0;
 
           return (
-            <TouchableOpacity
+            <Pressable
               style={[
                 styles.stageBtn,
                 {
@@ -59,15 +66,19 @@ export default function StageSelectScreen() {
               onPress={() => unlocked && router.push(`/game/${stage.id}`)}
               disabled={!unlocked}
             >
-              <Text style={[styles.stageNum, { color: unlocked ? COLORS.text : COLORS.locked }]}>
-                {unlocked ? stage.id - world.stageIds[0] + 1 : '🔒'}
-              </Text>
+              {unlocked ? (
+                <Text style={[styles.stageNum, { color: COLORS.text }]}>
+                  {stage.id - world.stageIds[0] + 1}
+                </Text>
+              ) : (
+                <IconSvg name="lock" size={20} color={COLORS.locked} />
+              )}
               {cleared && result ? (
                 <StarRating stars={result.stars} size={10} />
               ) : unlocked ? (
                 <Text style={styles.notCleared}>-</Text>
               ) : null}
-            </TouchableOpacity>
+            </Pressable>
           );
         }}
       />
