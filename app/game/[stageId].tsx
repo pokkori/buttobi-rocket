@@ -79,7 +79,7 @@ export default function GameScreen() {
       <SafeAreaView style={styles.hud} pointerEvents="box-none">
         <View style={styles.hudTop}>
           <Pressable onPress={handlePause} style={styles.pauseBtn}>
-            <Text style={styles.pauseText}>{isPaused ? '▶' : '⏸'}</Text>
+            <Text style={styles.pauseText}>{isPaused ? '再開' : '停止'}</Text>
           </Pressable>
           <Text style={styles.stageLabel}>
             {world.id}-{stageInWorld} {stage.name}
@@ -106,7 +106,7 @@ export default function GameScreen() {
               accessibilityLabel="再開"
               accessibilityRole="button"
             >
-              <Text style={styles.resumeText}>▶ 再開</Text>
+              <Text style={styles.resumeText}>再開</Text>
             </Pressable>
             <Pressable onPress={() => router.back()} style={styles.quitBtn}
               accessibilityLabel="ステージ選択に戻る"

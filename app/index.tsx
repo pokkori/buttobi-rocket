@@ -1,25 +1,44 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Easing, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import ReanimatedAnimated, {
+  FadeInDown,
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { Button } from '../src/components/ui/Button';
 import { CoinDisplay } from '../src/components/ui/CoinDisplay';
 import { useProgressStore } from '../src/stores/progressStore';
 import { COLORS } from '../src/constants/colors';
 import { IconSvg } from '../src/components/ui/IconSvg';
+import WelcomeBackModal, { checkWelcomeBack } from '../src/components/WelcomeBackModal';
 
 export default function TitleScreen() {
   const router = useRouter();
   const coins = useProgressStore(s => s.coins);
   const loaded = useProgressStore(s => s.loaded);
-  const rotAnim = useRef(new Animated.Value(0)).current;
+  const rotation = useSharedValue(0);
+  const [welcomeVisible, setWelcomeVisible] = useState(false);
+  const [welcomeResult, setWelcomeResult] = useState<{ shouldShow: boolean; hoursAway: number; bonusCoins: number; message: string }>({ shouldShow: false, hoursAway: 0, bonusCoins: 0, message: '' });
 
   useEffect(() => {
-    Animated.loop(
-      Animated.timing(rotAnim, { toValue: 1, duration: 6000, easing: Easing.linear, useNativeDriver: true })
-    ).start();
+    checkWelcomeBack().then((r) => { if (r.shouldShow) { setWelcomeResult(r); setWelcomeVisible(true); } });
   }, []);
 
-  const rotate = rotAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
+  useEffect(() => {
+    rotation.value = withRepeat(
+      withTiming(360, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+    );
+  }, [rotation]);
+
+  const rotateStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
 
   if (!loaded) {
     return (
@@ -30,6 +49,7 @@ export default function TitleScreen() {
   }
 
   return (
+    <LinearGradient colors={['#0A0E27', '#0F0F1A', '#1A0A2E']} style={styles.gradient}>
     <SafeAreaView style={styles.container}>
       {/* Star background */}
       <View style={StyleSheet.absoluteFill}>
@@ -56,20 +76,19 @@ export default function TitleScreen() {
         <CoinDisplay amount={coins} />
       </View>
 
-      <View style={styles.center}>
-        <Animated.View style={[styles.rocketIcon, { transform: [{ rotate }] }]}>
+      <ReanimatedAnimated.View entering={FadeInDown.delay(0).duration(500).springify()} style={styles.center}>
+        <ReanimatedAnimated.View style={[styles.rocketIcon, rotateStyle]}>
           <IconSvg name="rocket" size={64} color={COLORS.primary} />
-        </Animated.View>
+        </ReanimatedAnimated.View>
         <Text style={styles.title}>ぶっ飛びロケット</Text>
         <Text style={styles.subtitle}>Rocket Fling</Text>
-      </View>
+      </ReanimatedAnimated.View>
 
       <View style={styles.buttons}>
         <Button
           title="はじめる"
           onPress={() => router.push('/stages')}
           size="large"
-          icon="▶"
           style={styles.mainButton}
         />
 
@@ -101,14 +120,20 @@ export default function TitleScreen() {
           />
         </View>
       </View>
+      <WelcomeBackModal
+        visible={welcomeVisible}
+        result={welcomeResult}
+        onClose={() => setWelcomeVisible(false)}
+      />
     </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
+  gradient: { flex: 1 },
   container: {
     flex: 1,
-    backgroundColor: '#0A0E27',
   },
   loading: {
     color: COLORS.text,
@@ -135,8 +160,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '900',
-    color: COLORS.text,
+    color: '#F1F5F9',
     marginBottom: 4,
+    textShadowColor: 'rgba(99,102,241,0.6)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 14,
   },
   subtitle: {
     fontSize: 16,

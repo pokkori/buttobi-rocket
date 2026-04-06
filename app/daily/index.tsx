@@ -86,7 +86,6 @@ export default function DailyScreen() {
           title={isToday && todayCleared ? 'もう一度挑戦' : 'チャレンジ開始'}
           onPress={handlePlay}
           size="large"
-          icon="▶"
           style={styles.playBtn}
         />
 
